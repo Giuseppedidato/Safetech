@@ -42,7 +42,7 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     {
         Gate::define('viewNova', function ($user) {
             return in_array($user->email, [
-                //
+                // Inserisci qui gli indirizzi email degli utenti autorizzati ad accedere a Nova
             ]);
         });
     }
@@ -57,6 +57,23 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         return [
             new \App\Nova\Dashboards\Main,
         ];
+    }
+
+    /**
+     * Register the resources that should be listed in the Nova sidebar.
+     *
+     * @return void
+     */
+    public function resources()
+    {
+        Nova::resources([
+            \App\Nova\User::class,
+            \App\Nova\CompanyUser::class,
+            \App\Nova\Device::class,  // Aggiungi tutte le risorse che vuoi visualizzare
+            \App\Nova\Subscription::class,
+            \App\Nova\Company::class,
+            \App\Nova\DeviceType::class, // Aggiungi altre risorse se necessario
+        ]);
     }
 
     /**

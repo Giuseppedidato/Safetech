@@ -8,4 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 class Notification extends Model
 {
     use HasFactory;
+
+    // Relazione con utente (una notifica appartiene a un utente)
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }

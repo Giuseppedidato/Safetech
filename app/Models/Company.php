@@ -26,4 +26,33 @@ class Company extends Model
     {
         return $this->hasMany(Subscription::class);
     }
+
+    // Relazione con fatture (invoices)
+    public function invoices()
+    {
+        return $this->hasMany(Invoice::class);
+    }
+
+    // Relazione con pagamenti
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+    // Relazione con le richieste di supporto (support tickets)
+    public function supportTickets()
+    {
+        return $this->hasMany(SupportTicket::class);
+    }
+
+    // Relazione con i log di attività (audit logs)
+    public function auditLogs()
+    {
+        return $this->hasMany(AuditLog::class);
+    }
+
+    public static function uriKey()
+    {
+        return 'company';
+    }
 }

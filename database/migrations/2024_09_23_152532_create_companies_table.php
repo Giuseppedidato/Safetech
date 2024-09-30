@@ -13,8 +13,8 @@ class CreateCompaniesTable extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('regione_sociale'); // Ragione Sociale dell'azienda
-            $table->string('indirizzo'); // Indirizzo sede legale/operativa
+            $table->string('regione_sociale')->nullable(); // Ragione Sociale dell'azienda
+            $table->string('indirizzo')->nullable(); // Indirizzo sede legale/operativa
             $table->string('email')->unique(); // Email dell'azienda
             $table->string('telefono')->nullable(); // Numero di telefono dell'azienda
             $table->string('codice_destinatario', 7)->nullable(); // Codice destinatario per fatturazione elettronica

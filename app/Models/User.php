@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -26,7 +25,7 @@ class User extends Authenticatable
     protected $fillable = [
         'name',
         'email',
-        'password',
+        'password',// aggiungere campi da tabella user
     ];
 
     /**
@@ -61,5 +60,23 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    // Relazione con dispositivi (un utente può avere più dispositivi)
+    public function devices()
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    // Relazione con azienda (un utente appartiene a una azienda)
+    public function company()
+    {
+        return $this->belongsTo(Company::class);
+    }
+
+    // Relazione con abbonamenti (un utente può avere più abbonamenti, nel caso di gestione a livello utente)
+    public function subscriptions()
+    {
+        return $this->belongsToMany(Subscription::class, 'user_subscriptions');
     }
 }

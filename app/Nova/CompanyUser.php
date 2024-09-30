@@ -1,22 +1,18 @@
 <?php
 
 namespace App\Nova;
-use App\Models\Device;
+
 use App\Models\Company;
-use Laravel\Nova\Resource;
 use Laravel\Nova\Fields\ID;
-use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
 use Illuminate\Validation\Rules;
-use Laravel\Nova\Fields\Boolean;
-use Laravel\Nova\Fields\HasMany;
 use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
-class User extends Resource
+class CompanyUser extends Resource
 {
     /**
      * The model the resource corresponds to.
@@ -69,30 +65,12 @@ class User extends Resource
                 ->creationRules('required', Rules\Password::defaults())
                 ->updateRules('nullable', Rules\Password::defaults()),
 
-            // Relazione con l'azienda (company_id)
+            // Collegamento all'azienda cliente
             BelongsTo::make('Company', 'company', Company::class),
 
-            // Relazione con dispositivi
-            HasMany::make('Devices', 'devices', Device::class),
-
-            // Relazione con abbonamenti dell'azienda (opzionale)
-            HasMany::make('Subscriptions', 'subscriptions', Subscription::class),
-
-            // Due campi aggiuntivi per l'autenticazione a due fattori
-            Boolean::make('Two Factor Confirmed', 'two_factor_confirmed_at')
-                ->trueValue(now())
-                ->falseValue(null)
-                ->sortable(),
-
-            Text::make('Two Factor Secret')
-                ->hideFromIndex()
-                ->onlyOnForms(),
-
-            Text::make('Two Factor Recovery Codes')
-                ->hideFromIndex()
-                ->onlyOnForms(),
-
-            // Altri campi aggiuntivi possono essere aggiunti qui...
+            // Altri campi personalizzati possono essere aggiunti qui
+            // Ad esempio: Ruolo aziendale, data di assunzione, dipartimento
+            // Commento: Da aggiungere in futuro in base alle esigenze aziendali
         ];
     }
 
@@ -137,6 +115,40 @@ class User extends Resource
      */
     public function actions(NovaRequest $request)
     {
-        return [];
+        return [
+            // In futuro potremo aggiungere azioni personalizzate per gli utenti aziendali,
+            // ad esempio la sospensione di un utente, l'invio di notifiche, o altre operazioni rilevanti.
+        ];
+    }
+
+    /**
+     * Filtering only the users that are employees of a company.
+     *
+     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public static function indexQuery(NovaRequest $request, $query)
+    {
+        return $query->whereNotNull('company_id');
+    }
+
+    /**
+     * Definizione delle relazioni, ruoli e permessi
+     * Commento: Se l'utente ha ruoli specifici (ad esempio, amministratore o dipendente semplice),
+     * questi possono essere gestiti in una relazione con la tabella dei ruoli.
+     */
+    public function roleRelations()
+    {
+        // Da aggiungere la gestione di ruoli e permessi degli utenti aziendali
+    }
+
+    /**
+     * Gestione dei dispositivi collegati
+     * Commento: Potrebbe essere utile visualizzare i dispositivi collegati a un utente specifico
+     */
+    public function deviceRelations()
+    {
+        // Da aggiungere la gestione dei dispositivi collegati all'utente aziendale
     }
 }
