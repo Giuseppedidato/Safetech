@@ -3,9 +3,9 @@ name: Tests
 on:
   push:
     branches:
-      - main  # Modifica con il tuo branch attuale
-      - master
-      - '*.x'
+     - main  # Modifica con il tuo branch attuale
+     - master
+
   pull_request:
   schedule:
     - cron: '0 0 * * *'
@@ -35,9 +35,10 @@ jobs:
           extensions: dom, curl, libxml, mbstring, zip, pcntl, pdo, sqlite, pdo_sqlite
           coverage: none
 
+      - name: Setup Nova License Key
+        run: composer config http-basic.nova.laravel.com giuseppedidato@hotmail.com ${{ secrets.NOVA_LICENSE_KEY }}
+
       - name: Install Composer dependencies
-        env:
-          NOVA_LICENSE_KEY: ${{ secrets.NOVA_LICENSE_KEY }}  # Aggiunta chiave di licenza Laravel Nova
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy environment file
