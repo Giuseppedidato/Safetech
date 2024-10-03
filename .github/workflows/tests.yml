@@ -35,6 +35,8 @@ jobs:
           coverage: none
 
       - name: Install Composer dependencies
+        env:
+          NOVA_LICENSE_KEY: ${{ secrets.NOVA_LICENSE_KEY }}  iHk8SVCFBIqdWEpWZpVs9x6OzEQpZ0L5klTIrsB93134cdwxa9
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy environment file
