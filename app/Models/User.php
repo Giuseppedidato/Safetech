@@ -8,31 +8,19 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
 use Laravel\Jetstream\HasProfilePhoto;
 use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
 class User extends Authenticatable
 {
-    use HasApiTokens;
-    use HasFactory;
-    use HasProfilePhoto;
-    use Notifiable;
-    use TwoFactorAuthenticatable;
+    use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, HasRoles;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'name',
         'email',
-        'password',// aggiungere campi da tabella user
+        'password',
+        'company_id', // Relazione con l'azienda
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var array<int, string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
@@ -40,27 +28,14 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
-    /**
-     * The accessors to append to the model's array form.
-     *
-     * @var array<int, string>
-     */
     protected $appends = [
         'profile_photo_url',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
-    {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
-    }
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
 
     // Relazione con dispositivi (un utente può avere più dispositivi)
     public function devices()
@@ -74,9 +49,24 @@ class User extends Authenticatable
         return $this->belongsTo(Company::class);
     }
 
-    // Relazione con abbonamenti (un utente può avere più abbonamenti, nel caso di gestione a livello utente)
+    // Relazione con abbonamenti
     public function subscriptions()
     {
         return $this->belongsToMany(Subscription::class, 'user_subscriptions');
+    }
+
+    public function isAdmin(): bool
+    {
+        return $this->hasRole('admin');
+    }
+
+    public function isCompanyAdmin(): bool
+    {
+        return $this->hasRole('company-admin');
+    }
+
+    public function isEmployee(): bool
+    {
+        return $this->hasRole('employee');
     }
 }

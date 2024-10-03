@@ -2,89 +2,93 @@
 
 namespace App\Nova;
 
-use Illuminate\Http\Request;
 use Laravel\Nova\Fields\ID;
+use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Email;
 use Laravel\Nova\Http\Requests\NovaRequest;
 
 class Company extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var class-string<\App\Models\Company>
-     */
     public static $model = \App\Models\Company::class;
 
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
-    public static $title = 'id';
+    public static $title = 'ragione_sociale';
 
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
     public static $search = [
-        'id',
+        'id', 'ragione_sociale', 'email', 'partita_iva',
     ];
 
-    /**
-     * Get the fields displayed by the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
     public function fields(NovaRequest $request)
     {
         return [
             ID::make()->sortable(),
+
+            Text::make('Ragione Sociale', 'ragione_sociale')
+                ->sortable()
+                ->rules('required', 'max:255'),
+
+            Text::make('Indirizzo', 'indirizzo')
+                ->sortable()
+                ->rules('nullable', 'max:255'),
+
+            Email::make('Email', 'email')
+                ->sortable()
+                ->rules('required', 'email', 'max:254'),
+
+            Text::make('Telefono', 'telefono')
+                ->sortable()
+                ->rules('nullable', 'max:20'),
+
+            Text::make('Codice Destinatario', 'codice_destinatario')
+                ->sortable()
+                ->rules('nullable', 'max:7'),
+
+            Text::make('PEC', 'pec')
+                ->sortable()
+                ->rules('nullable', 'email', 'max:254'),
+
+            Text::make('Partita IVA', 'partita_iva')
+                ->sortable()
+                ->rules('required', 'unique:companies,partita_iva', 'max:20'),
+
+            Text::make('Codice Fiscale', 'codice_fiscale')
+                ->sortable()
+                ->rules('nullable', 'max:20'),
+
+            Text::make('Telefono Contatto', 'contatto_telefono')
+                ->sortable()
+                ->rules('nullable', 'max:20'),
+
+            Text::make('Indirizzo Fatturazione', 'indirizzo_fatturazione')
+                ->sortable()
+                ->rules('nullable', 'max:255'),
+
+            Email::make('Email Fatturazione', 'email_fatturazione')
+                ->sortable()
+                ->rules('nullable', 'email', 'max:254'),
+
+            Text::make('IBAN', 'iban')
+                ->sortable()
+                ->rules('nullable', 'max:34'),
+
+            Text::make('Metodo di Pagamento', 'metodo_pagamento')
+                ->sortable()
+                ->rules('nullable', 'max:50'),
+
+            Text::make('Valuta', 'valuta')
+                ->sortable()
+                ->rules('nullable', 'max:3')
+                ->default('EUR'),
         ];
     }
 
-    /**
-     * Get the cards available for the request.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function cards(NovaRequest $request)
+    public static function indexQuery(NovaRequest $request, $query)
     {
-        return [];
-    }
+        // Gli amministratori SafeTech possono vedere tutte le aziende
+        if ($request->user()->hasRole('admin')) {
+            return $query;
+        }
 
-    /**
-     * Get the filters available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function filters(NovaRequest $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the lenses available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function lenses(NovaRequest $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the actions available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function actions(NovaRequest $request)
-    {
-        return [];
+        // I dipendenti e gli amministratori aziendali vedono solo la propria azienda
+        return $query->where('id', $request->user()->company_id);
     }
 }

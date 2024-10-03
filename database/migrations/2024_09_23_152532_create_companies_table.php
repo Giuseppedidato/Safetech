@@ -13,25 +13,25 @@ class CreateCompaniesTable extends Migration
     {
         Schema::create('companies', function (Blueprint $table) {
             $table->id();
-            $table->string('regione_sociale')->nullable(); // Ragione Sociale dell'azienda
+            $table->string('ragione_sociale')->nullable(); // Ragione Sociale dell'azienda
             $table->string('indirizzo')->nullable(); // Indirizzo sede legale/operativa
             $table->string('email')->unique(); // Email dell'azienda
             $table->string('telefono')->nullable(); // Numero di telefono dell'azienda
             $table->string('codice_destinatario', 7)->nullable(); // Codice destinatario per fatturazione elettronica
             $table->string('pec')->nullable(); // PEC per fatturazione elettronica
-            $table->string('codice_univoco_sdi')->nullable(); // Codice univoco SDI
-            $table->string('registro_imprese')->nullable(); // Numero di iscrizione al registro imprese
-            $table->string('cf_rappresentante_legale')->nullable(); // Codice fiscale del rappresentante legale
+           // $table->string('codice_univoco_sdi')->nullable(); // Codice univoco SDI
+           // $table->string('registro_imprese')->nullable(); // Numero di iscrizione al registro imprese
+          //  $table->string('cf_rappresentante_legale')->nullable(); // Codice fiscale del rappresentante legale
 
             // Dati fiscali
             $table->string('partita_iva')->nullable(); // Partita IVA dell'azienda
             $table->string('codice_fiscale')->nullable(); // Codice fiscale (se diverso dalla Partita IVA)
 
             // Dati del contatto principale
-            $table->string('contatto_nome'); // Nome del contatto principale
-            $table->string('contatto_email')->nullable(); // Email del contatto principale
+           // $table->string('contatto_nome'); // Nome del contatto principale
+           // $table->string('contatto_email')->nullable(); // Email del contatto principale
             $table->string('contatto_telefono')->nullable(); // Telefono del contatto principale
-            $table->foreignId('contatto_ruolo_id')->constrained('roles')->nullable(); // Ruolo del contatto principale (FK a ruoli)
+           // $table->foreignId('contatto_ruolo_id')->constrained('roles')->nullable(); // Ruolo del contatto principale (FK a ruoli)
 
             // Dati per la fatturazione
             $table->string('indirizzo_fatturazione')->nullable(); // Indirizzo per la fatturazione

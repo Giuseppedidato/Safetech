@@ -72,7 +72,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
             \App\Nova\Device::class,  // Aggiungi tutte le risorse che vuoi visualizzare
             \App\Nova\Subscription::class,
             \App\Nova\Company::class,
-            \App\Nova\DeviceType::class, // Aggiungi altre risorse se necessario
+            \App\Nova\DeviceType::class,
+          // Aggiungi altre risorse se necessario
         ]);
     }
 
@@ -83,7 +84,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     public function tools()
     {
-        return [];
+        return [
+        ];
     }
 
     /**

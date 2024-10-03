@@ -1,64 +1,35 @@
 <?php
 
 namespace App\Nova;
-use App\Models\Device;
-use App\Models\Company;
-use Laravel\Nova\Resource;
+
 use Laravel\Nova\Fields\ID;
-use App\Models\Subscription;
-use Illuminate\Http\Request;
 use Laravel\Nova\Fields\Text;
-use Illuminate\Validation\Rules;
-use Laravel\Nova\Fields\Boolean;
-use Laravel\Nova\Fields\HasMany;
-use Laravel\Nova\Fields\Gravatar;
 use Laravel\Nova\Fields\Password;
 use Laravel\Nova\Fields\BelongsTo;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Http\Requests\NovaRequest;
+use Spatie\Permission\Models\Role;
 
 class User extends Resource
 {
-    /**
-     * The model the resource corresponds to.
-     *
-     * @var class-string<\App\Models\User>
-     */
     public static $model = \App\Models\User::class;
 
-    /**
-     * The single value that should be used to represent the resource when being displayed.
-     *
-     * @var string
-     */
     public static $title = 'name';
 
-    /**
-     * The columns that should be searched.
-     *
-     * @var array
-     */
     public static $search = [
         'id', 'name', 'email',
     ];
 
-    /**
-     * Get the fields displayed by the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
     public function fields(NovaRequest $request)
     {
         return [
             ID::make()->sortable(),
 
-            Gravatar::make()->maxWidth(50),
-
-            Text::make('Name')
+            Text::make('Nome', 'name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            Text::make('Email')
+            Text::make('Email', 'email')
                 ->sortable()
                 ->rules('required', 'email', 'max:254')
                 ->creationRules('unique:users,email')
@@ -66,77 +37,46 @@ class User extends Resource
 
             Password::make('Password')
                 ->onlyOnForms()
-                ->creationRules('required', Rules\Password::defaults())
-                ->updateRules('nullable', Rules\Password::defaults()),
+                ->creationRules('required', 'min:8')
+                ->updateRules('nullable', 'min:8'),
 
-            // Relazione con l'azienda (company_id)
-            BelongsTo::make('Company', 'company', Company::class),
+            BelongsTo::make('Azienda', 'company', Company::class)
+                ->sortable()
+                ->rules('required'),
 
-            // Relazione con dispositivi
-            HasMany::make('Devices', 'devices', Device::class),
-
-            // Relazione con abbonamenti dell'azienda (opzionale)
-            HasMany::make('Subscriptions', 'subscriptions', Subscription::class),
-
-            // Due campi aggiuntivi per l'autenticazione a due fattori
-            Boolean::make('Two Factor Confirmed', 'two_factor_confirmed_at')
-                ->trueValue(now())
-                ->falseValue(null)
+            // Mostra il nome del ruolo, ma senza visualizzare l'ID del ruolo
+            Text::make('Ruolo', function () {
+                return $this->roles->pluck('name')->implode(', ');
+            })
                 ->sortable(),
 
-            Text::make('Two Factor Secret')
-                ->hideFromIndex()
-                ->onlyOnForms(),
-
-            Text::make('Two Factor Recovery Codes')
-                ->hideFromIndex()
-                ->onlyOnForms(),
-
-            // Altri campi aggiuntivi possono essere aggiunti qui...
+            // Campo di selezione per i ruoli, solo per amministratori SafeTech o aziendali
+            Select::make('Ruolo')
+                ->options(Role::pluck('name', 'id')->toArray())  // Preleva i nomi dei ruoli invece degli ID
+                ->displayUsingLabels()  // Mostra le etichette (nomi dei ruoli)
+                ->rules('required')
+                ->withMeta([
+                    'value' => optional($this->roles->first())->id,  // Recupera l'ID del ruolo assegnato
+                ])
+                ->fillUsing(function ($request, $model, $attribute, $requestAttribute) {
+                    // Assegna il ruolo solo se l'utente ha i permessi
+                    if (!$request->user()->hasRole(['admin', 'company-admin'])) {
+                        throw new \Exception("Non hai i permessi per modificare i ruoli.");
+                    }
+                    $role = Role::find($request->get($requestAttribute));
+                    $model->syncRoles($role);
+                }),
         ];
     }
 
-    /**
-     * Get the cards available for the request.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function cards(NovaRequest $request)
+    public static function indexQuery(NovaRequest $request, $query)
     {
-        return [];
-    }
+        // Gli amministratori SafeTech possono vedere tutti gli utenti
+        if ($request->user()->hasRole('admin')) {
+            return $query;
+        }
 
-    /**
-     * Get the filters available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function filters(NovaRequest $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the lenses available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function lenses(NovaRequest $request)
-    {
-        return [];
-    }
-
-    /**
-     * Get the actions available for the resource.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function actions(NovaRequest $request)
-    {
-        return [];
+        // I dipendenti e gli amministratori aziendali vedono solo gli utenti della propria azienda
+        return $query->where('company_id', $request->user()->company_id);
     }
 }

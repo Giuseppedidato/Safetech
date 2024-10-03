@@ -22,4 +22,11 @@ return $this->belongsTo(Company::class);
     {
         return $this->belongsTo(SubscriptionType::class);
     }
+
+    public static function uriKey()
+    {
+        return 'subscription';
+    }
+
+
 }

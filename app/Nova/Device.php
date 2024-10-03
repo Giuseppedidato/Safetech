@@ -2,39 +2,41 @@
 
 namespace App\Nova;
 
+use App\Models\Company;
+use App\Models\User;
 use Laravel\Nova\Fields\ID;
 use Laravel\Nova\Fields\Text;
+use Laravel\Nova\Fields\Select;
 use Laravel\Nova\Fields\BelongsTo;
 use Laravel\Nova\Http\Requests\NovaRequest;
-use Illuminate\Http\Request;
 
 class Device extends Resource
 {
     /**
-     * Il modello associato a questa risorsa.
+     * The model the resource corresponds to.
      *
-     * @var string
+     * @var class-string<\App\Models\Device>
      */
     public static $model = \App\Models\Device::class;
 
     /**
-     * Il valore che verrà utilizzato per rappresentare la risorsa quando viene mostrata.
+     * The single value that should be used to represent the resource when being displayed.
      *
      * @var string
      */
-    public static $title = 'id';
+    public static $title = 'name';
 
     /**
-     * Le colonne che dovrebbero essere cercate.
+     * The columns that should be searched.
      *
      * @var array
      */
     public static $search = [
-        'id', 'mac_address', 'device_type_id'
+        'id', 'name', 'mac_address',
     ];
 
     /**
-     * I campi visualizzati dalla risorsa.
+     * Get the fields displayed by the resource.
      *
      * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
      * @return array
@@ -44,33 +46,29 @@ class Device extends Resource
         return [
             ID::make()->sortable(),
 
-            // Campo per l'indirizzo MAC del dispositivo
-            Text::make('MAC Address', 'mac_address')
+            Text::make('Name')
                 ->sortable()
                 ->rules('required', 'max:255'),
 
-            // Relazione con il tipo di dispositivo
-            BelongsTo::make('Device Type', 'deviceType', DeviceType::class)
+            Text::make('MAC Address')
+                ->sortable()
+                ->rules('required', 'max:17'),
+
+            Select::make('Status')
+                ->options([
+                    'active' => 'Active',
+                    'inactive' => 'Inactive',
+                    'maintenance' => 'Maintenance',
+                ])
+                ->displayUsingLabels()
                 ->sortable(),
 
-            // Relazione con l'azienda a cui appartiene il dispositivo
             BelongsTo::make('Company', 'company', Company::class)
-                ->sortable(),
+                ->sortable()
+                ->rules('required'),
 
-            // Relazione con l'utente a cui è assegnato il dispositivo
             BelongsTo::make('User', 'user', User::class)
-                ->sortable(),
+                ->nullable(), // Il dispositivo può non essere assegnato immediatamente a un utente
         ];
-    }
-
-    /**
-     * Azioni disponibili per la risorsa.
-     *
-     * @param  \Laravel\Nova\Http\Requests\NovaRequest  $request
-     * @return array
-     */
-    public function actions(NovaRequest $request)
-    {
-        return [];
     }
 }

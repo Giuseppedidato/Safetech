@@ -9,50 +9,68 @@ class Company extends Model
 {
     use HasFactory;
 
-    // Relazione con utenti (un'azienda ha molti utenti)
+    protected $fillable = [
+        'ragione_sociale',
+        'indirizzo',
+        'email',
+        'telefono',
+        'codice_destinatario',
+        'pec',
+        'partita_iva',
+        'codice_fiscale',
+        'contatto_telefono',
+        'indirizzo_fatturazione',
+        'email_fatturazione',
+        'iban',
+        'metodo_pagamento',
+        'valuta',
+    ];
+
+    // Relazioni
     public function users()
     {
         return $this->hasMany(User::class);
     }
 
-    // Relazione con dispositivi (un'azienda ha molti dispositivi)
     public function devices()
     {
         return $this->hasMany(Device::class);
     }
 
-    // Relazione con abbonamenti (un'azienda può avere più abbonamenti)
     public function subscriptions()
     {
         return $this->hasMany(Subscription::class);
     }
 
-    // Relazione con fatture (invoices)
     public function invoices()
     {
         return $this->hasMany(Invoice::class);
     }
 
-    // Relazione con pagamenti
     public function payments()
     {
         return $this->hasMany(Payment::class);
     }
 
-    // Relazione con le richieste di supporto (support tickets)
     public function supportTickets()
     {
         return $this->hasMany(SupportTicket::class);
     }
 
-    // Relazione con i log di attività (audit logs)
     public function auditLogs()
     {
         return $this->hasMany(AuditLog::class);
     }
 
+    // Metodo uriKey
     public static function uriKey()
     {
         return 'company';
     }
+
+    public function company()
+{
+    return $this->belongsTo(Company::class);
+}
+
 }
