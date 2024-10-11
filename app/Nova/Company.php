@@ -84,7 +84,7 @@ class Company extends Resource
     public static function indexQuery(NovaRequest $request, $query)
     {
         // Gli amministratori SafeTech possono vedere tutte le aziende
-        if ($request->user()->hasRole('admin')) {
+        if ($request->user()->hasRole('SafeTech-admin')) {
             return $query;
         }
 

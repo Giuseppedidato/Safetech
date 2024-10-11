@@ -14,13 +14,15 @@ class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, HasProfilePhoto, Notifiable, TwoFactorAuthenticatable, HasRoles;
 
+    // Attributi massivi che possono essere riempiti
     protected $fillable = [
         'name',
         'email',
         'password',
-        'company_id', // Relazione con l'azienda
+        'company_id', // Collegamento all'azienda
     ];
 
+    // Nasconde determinati campi
     protected $hidden = [
         'password',
         'remember_token',
@@ -28,45 +30,194 @@ class User extends Authenticatable
         'two_factor_secret',
     ];
 
+    // Aggiunge attributi dinamici al modello
     protected $appends = [
         'profile_photo_url',
     ];
 
+    // Cast automatico di determinati campi
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
     ];
 
-    // Relazione con dispositivi (un utente può avere più dispositivi)
+    // Relazione: un utente può avere molti dispositivi
     public function devices()
     {
         return $this->hasMany(UserDevice::class);
     }
 
-    // Relazione con azienda (un utente appartiene a una azienda)
+    // Relazione: un utente appartiene a una sola azienda
     public function company()
     {
         return $this->belongsTo(Company::class);
     }
 
-    // Relazione con abbonamenti
+    // Relazione: un utente può avere molti abbonamenti
     public function subscriptions()
     {
         return $this->belongsToMany(Subscription::class, 'user_subscriptions');
     }
 
+    // Verifica se l'utente è amministratore SafeTech
     public function isAdmin(): bool
     {
-        return $this->hasRole('admin');
+        return $this->hasRole('SafeTech-admin');
     }
 
+    // Verifica se l'utente è amministratore di un'azienda
     public function isCompanyAdmin(): bool
     {
         return $this->hasRole('company-admin');
     }
 
+    // Verifica se l'utente è un dipendente
     public function isEmployee(): bool
     {
         return $this->hasRole('employee');
     }
+
+    // Implementazione della policy per la visualizzazione dei dati aziendali
+    public function canViewCompanyData($company)
+    {
+        return $this->company_id === $company->id;
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

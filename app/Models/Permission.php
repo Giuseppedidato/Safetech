@@ -9,6 +9,8 @@ class Permission extends SpatiePermission
 {
     use HasFactory;
 
+
+
     // Personalizzazioni aggiuntive possono essere inserite qui, senza ridefinire metodi già presenti
     // nel pacchetto Spatie (come roles() o users()) per evitare conflitti.
 
@@ -30,4 +32,11 @@ class Permission extends SpatiePermission
         // Questa logica va implementata solo se colleghi permessi alle aziende.
         // Altrimenti puoi rimuoverla o tenerla per futuri sviluppi.
     }
+
+   public static function uriKey()
+{
+    return 'permissions';
+}
+
+
 }

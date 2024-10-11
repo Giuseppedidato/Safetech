@@ -40,10 +40,9 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
      */
     protected function gate()
     {
+        // Ora controlliamo che l'utente abbia il ruolo "SafeTech-admin" per accedere a Nova
         Gate::define('viewNova', function ($user) {
-            return in_array($user->email, [
-                // Inserisci qui gli indirizzi email degli utenti autorizzati ad accedere a Nova
-            ]);
+            return $user->hasRole('SafeTech-admin');
         });
     }
 
@@ -69,11 +68,13 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         Nova::resources([
             \App\Nova\User::class,
             \App\Nova\CompanyUser::class,
-            \App\Nova\Device::class,  // Aggiungi tutte le risorse che vuoi visualizzare
+            \App\Nova\Device::class,
             \App\Nova\Subscription::class,
             \App\Nova\Company::class,
             \App\Nova\DeviceType::class,
-          // Aggiungi altre risorse se necessario
+            \App\Nova\Role::class,           // Aggiungi la risorsa Ruoli
+            \App\Nova\Permission::class,     // Aggiungi la risorsa Permessi
+            // Aggiungi altre risorse se necessario
         ]);
     }
 
@@ -85,6 +86,8 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
     public function tools()
     {
         return [
+         
+            // Aggiungi eventuali tool per Nova
         ];
     }
 
@@ -98,3 +101,4 @@ class NovaServiceProvider extends NovaApplicationServiceProvider
         //
     }
 }
+
